@@ -120,12 +120,12 @@ class Main:
         self.alineada1.set_text(alineadas[0])
         self.alineada2.set_text(alineadas[1])
 
-        m = matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
+        m = self.matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
         print(m)
 
 
     # matriz para mostrar en tabla
-    def matriz_for_show(matrizScore, matrizRuta, seq1, seq2):
+    def matriz_for_show(self, matrizScore, matrizRuta, seq1, seq2):
         fs= np.zeros(((len(seq2) * 2) + 2, (len(seq1)*2) + 2), dtype=object)
         fs[0:,0:] = ""
         # inicializar
@@ -135,7 +135,7 @@ class Main:
         fs[3::2, 1] = matrizScore[2:, 1]
         fs[1, 2::2] = matrizRuta[1, 2:]
         fs[2::2, 1] = matrizRuta[2:, 1]
-        fs[1][1]= 0
+        fs[1][1] = 0
         ien2 = 2
         jen2 = 2
 
@@ -154,6 +154,27 @@ class Main:
                 ien2 = ien2+1
                 jen2 = 2
         return fs
+
+    def tablaFinal(self, matrizfs):
+        grid = Gtk.Grid()
+        self.scrolled.add_with_viewport(grid)
+
+        filas = matrizfs.shape()[0]
+        columnas = matrizfs.shape()[1]
+        celdasTabla = {}
+
+        for i in range(filas):
+            for j in range(columnas):
+                if isinstance(matrizfs[i][j], str):
+                    celdasTabla["c{0}{0}".format(i, j)] = Gtk.Label()
+                    celdasTabla["c{0}{0}".format(i, j)].set_text(matrizfs[i][j])
+                else:
+                    celdasTabla["c{0}{0}".format(i, j)] = Gtk.Entry()
+                    celdasTabla["c{0}{0}".format(i, j)].set_property("editable", False)
+                    celdasTabla["c{0}{0}".format(i, j)].set_text(str(matrizfs[i][j]))
+                grid.attach(celdasTabla["c{0}{0}".format(i, j)], j, i, 1, 1)
+        grid.show_all()
+
 
 
 

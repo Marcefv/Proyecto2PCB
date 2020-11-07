@@ -107,7 +107,9 @@ class Main:
             return
 
         matrizScore = matrices[1]
-
+        matrizRuta = matrices[0]
+        print(matrizScore)
+        print(matrizRuta)
         # muestra scoring optimo en interfaz
         if self.algoritmoNW:
             self.scoring.set_text(str(matrizScore[len(seq2) + 1][len(seq1) + 1]))
@@ -117,6 +119,41 @@ class Main:
        # muestra secuencias alineadas
         self.alineada1.set_text(alineadas[0])
         self.alineada2.set_text(alineadas[1])
+
+        m = matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
+        print(m)
+
+
+    # matriz para mostrar en tabla
+    def matriz_for_show(matrizScore, matrizRuta, seq1, seq2):
+        fs= np.zeros(((len(seq2) * 2) + 2, (len(seq1)*2) + 2), dtype=object)
+        fs[0:,0:] = ""
+        # inicializar
+        fs[0, 3::2] = list(seq1)
+        fs[3::2, 0] = list(seq2)
+        fs[1, 3::2] = matrizScore[1, 2:]
+        fs[3::2, 1] = matrizScore[2:, 1]
+        fs[1, 2::2] = matrizRuta[1, 2:]
+        fs[2::2, 1] = matrizRuta[2:, 1]
+        fs[1][1]= 0
+        ien2 = 2
+        jen2 = 2
+
+        for i in range(3, (len(seq2) * 2) + 2):
+            if i % 2 != 0:
+                for j in range(3,  (len(seq1) * 2) + 2):
+                    if j % 2 != 0:
+                        fs[i][j] = matrizScore[ien2][jen2]
+                        if "↖" in matrizRuta[ien2][jen2]:
+                            fs[i-1][j-1] = "↖"
+                        if "↑" in matrizRuta[ien2][jen2]:
+                            fs[i-1][j] = "↑"
+                        if "←" in matrizRuta[ien2][jen2]:
+                            fs[i][j-1] = "←"
+                        jen2 = jen2+1
+                ien2 = ien2+1
+                jen2 = 2
+        return fs
 
 
 

@@ -36,14 +36,17 @@ class NeedlemanWunsch:
 
                 # luego compara los valores para ver el maximo y lo asigna a la casilla de la tabla de scores
                 S[i][j] = max(top, left, diag)
-
+                espacio = ""
                 # para asignar la casilla de la tabla de traceback se determina cual, si top, left o diag fue el asignado
                 if S[i][j] == top:
-                    T[i][j] = "↑"
-                elif S[i][j] == left:
-                    T[i][j] = "←"
-                else:
-                    T[i][j] = "↖"
+                    T[i][j] = espacio + "↑"
+                    espacio = espacio + "↑"
+                if S[i][j] == left:
+                    T[i][j] = espacio + "←"
+                    espacio = espacio + "←"
+                if S[i][j] == diag:
+                    T[i][j] = espacio + "↖"
+                    espacio = espacio + "↖"
         return T, S
 
     # para resultado final de alineamiento con traceback
@@ -54,19 +57,19 @@ class NeedlemanWunsch:
             # evalua si se debe avanzar en diagonal, arriba o abajo
 
             # si avanza en diagonal el valor esta alineado y lo asigna al string
-            if matrizRuta[fila][columna] == "↖":
+            if "↖" in matrizRuta[fila][columna]:
                 secuencia1 += seq1[columna - 2]
                 secuencia2 += seq2[fila - 2]
                 fila = fila - 1
                 columna = columna - 1
 
             # si avanza hacia arriba, introduce un gap en la secuencia de arriba, solo cambia el valor de la fila
-            elif matrizRuta[fila][columna] == "↑":
+            elif "↑" in matrizRuta[fila][columna]:
                 secuencia1 += "-"
                 secuencia2 += seq2[fila - 2]
                 fila = fila - 1
             # si avanza hacia izquierda, introduce un gap en la secuencia de la izquierda, solo cambia el valor de la columna
-            elif matrizRuta[fila][columna] == "←":
+            elif "←" in matrizRuta[fila][columna]:
                 secuencia1 += seq1[columna - 2]
                 secuencia2 += "-"
                 columna = columna - 1

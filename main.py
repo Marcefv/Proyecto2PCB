@@ -23,10 +23,9 @@ class Main:
         self.gapValue = self.builder.get_object("gapValue")
         self.secuencia1 = self.builder.get_object("seq1Txt")
         self.secuencia2 = self.builder.get_object("seq2Txt")
-        self.alineada1 = self.builder.get_object("alineada1Lbl")
-        self.alineada2 = self.builder.get_object("alineada2Lbl")
         self.scoring = self.builder.get_object("scoringLbl")
         self.scrolled = self.builder.get_object("scrolled")
+        self.text_view = self.builder.get_object("text_view")
 
         # mostrar elementos
         self.window.show()
@@ -50,8 +49,7 @@ class Main:
         self.gapValue.set_value(-2)
         self.secuencia2.set_text("")
         self.secuencia1.set_text("")
-        self.alineada1.set_text("")
-        self.alineada2.set_text("")
+        self.borrar_text_view()
         self.scoring.set_text("")
 
         while self.scrolled.get_child() is not None:
@@ -95,15 +93,18 @@ class Main:
                 matrices = ned.needlman_wunsch(seq1, seq2, match=self.matchValue.get_value_as_int(),
                                                    mismatch=self.mismatchValue.get_value_as_int(),
                                                    gap=self.gapValue.get_value_as_int())
-                alineadas = ned.secuencia_alineada(matrices[0],len(seq2) + 1, len(seq1) + 1, seq1, seq2, False)
+                alineadas = ned.secuencia_alineada(matrices[0], len(seq2) + 1, len(seq1) + 1, seq1, seq2, False)
             else:
                 smi = sw()
                 matrices = smi.smith_waterman(seq1, seq2, match=self.matchValue.get_value_as_int(),
                                                    mismatch=self.mismatchValue.get_value_as_int(),
                                                    gap=self.gapValue.get_value_as_int())
-                mayor = smi.encontrar_max_score(matrices[1], seq1, seq2)
+                mayor = smi.encontrar_max_score(matrices[1], len(seq2) + 1, len(seq1) + 1)
                 if len(mayor) > 1:
-
+                    islas = list()
+                    for isla in range(len(mayor)):
+                        alineado = smi.secuencia_alineada(matrices[0], mayor[isla][0], mayor[isla][1], seq1, seq2, False)
+                        islas.append(alineado)
                 else:
                     alineadas = smi.secuencia_alineada(matrices[0], mayor[0][0], mayor[0][1], seq1, seq2, False)
         except:
@@ -114,22 +115,30 @@ class Main:
         matrizRuta = matrices[0]
         print(matrizScore)
         print(matrizRuta)
-
+        texto = ""
         # muestra scoring optimo en interfaz
         if self.algoritmoNW:
             self.scoring.set_text(str(matrizScore[len(seq2) + 1][len(seq1) + 1]))
+            texto = texto + "Secuencia 1: " + alineadas[0] + "\n Secuencia 2: " + alineadas[1]
         else:
+            if len(mayor) > 1:
+                number = 1
+                for isla in islas:
+                    texto = texto + "Isla :"+str(number)+" : \n Secuencia 1: " + isla[0] + "\n Secuencia 2: " + isla[1] + "\n\n"
             self.scoring.set_text(str(mayor[0][2]))
 
-       # muestra secuencias alineadas
-       # self.alineada1.set_text(alineadas[0])
-        #self.alineada2.set_text(alineadas[1])
+        #muestra secuencias alineadas
+        self.llenarTextView(texto)
 
         #crea matriz para mostrar en tabla
-        #m = self.matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
+        m = self.matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
 
         #crea tabla en la que se muestra la matriz
-        #self.tablaFinal(m)
+        if self.algoritmoNW:
+            self.tablaFinal(m)
+        else:
+            mayores = smi.encontrar_max_score(m, (len(seq2) * 2) + 1, (len(seq1)*2) + 1)
+            self.tablaFinal(m, mayores)
 
 
     # matriz para mostrar en tabla
@@ -163,7 +172,7 @@ class Main:
                 jen2 = 2
         return fs
 
-    def tablaFinal(self, matrizfs):
+    def tablaFinal(self, matrizfs, islas = None):
         while self.scrolled.get_child() is not None:
             self.scrolled.remove(self.scrolled.get_child())
 
@@ -173,10 +182,13 @@ class Main:
         dim = matrizfs.shape
         filas = dim[0]
         columnas = dim[1]
-
+        colorear = list()
         if self.algoritmoNW:
             colorear = self.colorear_celda(matrizfs, filas-1, columnas-1)
-
+        else:
+            for isla in islas:
+                lista = self.colorear_celda(matrizfs, isla[0], isla[1])
+                colorear.extend(lista.copy())
 
         celdasTabla = {}
         rgba = RGBA()
@@ -187,58 +199,75 @@ class Main:
                 if isinstance(matrizfs[i][j], str):
                     celdasTabla["c{0}{1}".format(i, j)] = Gtk.Label()
                     celdasTabla["c{0}{1}".format(i, j)].set_text(matrizfs[i][j])
-                    #if "c{0}{1}".format(i, j) in colorear:
-                        #celdasTabla["c{0}{1}".format(i, j)].modify_fg(Gtk.StateFlags.NORMAL,  Color(50000, 0,0))
+                    if "c{0}{1}".format(i, j) in colorear:
+                        celdasTabla["c{0}{1}".format(i, j)].modify_fg(Gtk.StateFlags.NORMAL,  Color(50000, 0,0))
                 else:
                     celdasTabla["c{0}{1}".format(i, j)] = Gtk.Entry()
                     celdasTabla["c{0}{1}".format(i, j)].set_property("editable", False)
                     celdasTabla["c{0}{1}".format(i, j)].set_text(str(matrizfs[i][j]))
-                    #if "c{0}{1}".format(i, j) in colorear:
-                        #celdasTabla["c{0}{1}".format(i, j)].override_background_color(Gtk.StateFlags.NORMAL, rgba)
+                    if "c{0}{1}".format(i, j) in colorear:
+                        celdasTabla["c{0}{1}".format(i, j)].override_background_color(Gtk.StateFlags.NORMAL, rgba)
                 grid.attach(celdasTabla["c{0}{1}".format(i, j)], j, i, 1, 1)
         grid.show_all()
 
 
     def colorear_celda(self, matriz, fila, columna):
         colorear = list()
-        colorear.append("c{0}{1}".format(1, 1))
-        while (fila != 1) or (columna != 1):
-            if not isinstance(matriz[fila][columna], str):
-                colorear.append("c{0}{1}".format(fila, columna))
-                if matriz[fila-1][columna-1] != "" and fila-1 != 0 and columna - 1 != 0:
-                    fila = fila - 1
-                    columna = columna - 1
-                elif matriz[fila-1][columna] != "" and fila-1 != 0:
-                    fila = fila - 1
-                elif matriz[fila][columna-1] != "" and columna - 1 != 0:
-                    columna = columna - 1
-            else:
-                colorear.append("c{0}{1}".format(fila, columna))
-                if matriz[fila][columna] == "↖":
-                    fila = fila - 1
-                    columna = columna - 1
-                if matriz[fila][columna] == "↑":
-                    fila = fila - 1
-                if matriz[fila][columna] == "←":
-                    columna = columna - 1
-        return colorear
-    """
-    def on_btn_porcentajes_clicked(self, widget):
+
+        if self.algoritmoNW:
+            colorear.append("c{0}{1}".format(1, 1))
+            while (fila != 1) or (columna != 1):
+                if not isinstance(matriz[fila][columna], str):
+                    colorear.append("c{0}{1}".format(fila, columna))
+                    if matriz[fila-1][columna-1] != "" and fila-1 != 0 and columna - 1 != 0:
+                        fila = fila - 1
+                        columna = columna - 1
+                    elif matriz[fila-1][columna] != "" and fila-1 != 0:
+                        fila = fila - 1
+                    elif matriz[fila][columna-1] != "" and columna - 1 != 0:
+                        columna = columna - 1
+                else:
+                    colorear.append("c{0}{1}".format(fila, columna))
+                    if matriz[fila][columna] == "↖":
+                        fila = fila - 1
+                        columna = columna - 1
+                    if matriz[fila][columna] == "↑":
+                        fila = fila - 1
+                    if matriz[fila][columna] == "←":
+                        columna = columna - 1
+            return colorear
+        else:
+            while matriz[fila][columna] != 0:
+                if not isinstance(matriz[fila][columna], str):
+                    colorear.append("c{0}{1}".format(fila, columna))
+                    if matriz[fila-1][columna-1] != "" and fila-1 != 0 and columna - 1 != 0:
+                        fila = fila - 1
+                        columna = columna - 1
+                    elif matriz[fila-1][columna] != "" and fila-1 != 0:
+                        fila = fila - 1
+                    elif matriz[fila][columna-1] != "" and columna - 1 != 0:
+                        columna = columna - 1
+                else:
+                    colorear.append("c{0}{1}".format(fila, columna))
+                    if matriz[fila][columna] == "↖":
+                        fila = fila - 1
+                        columna = columna - 1
+                    if matriz[fila][columna] == "↑":
+                        fila = fila - 1
+                    if matriz[fila][columna] == "←":
+                        columna = columna - 1
+            return colorear
+
+    def llenarTextView(self, texto):
         self.borrar_text_view()
-        buffer = self.text_view1.get_buffer()
-        buffer2 = self.text_view2.get_buffer()
-        self.text_view1.get_buffer().insert(buffer.get_start_iter(), self.porcentajes_genotipos)
-        self.text_view2.get_buffer().insert(buffer2.get_start_iter(), self.porcentaje_fenotipos)
+        buffer = self.text_view.get_buffer()
+        self.text_view.get_buffer().insert(buffer.get_start_iter(), texto)
 
     def borrar_text_view(self):
-        buffer = self.text_view1.get_buffer()
-        buffer2 = self.text_view2.get_buffer()
+        buffer = self.text_view.get_buffer()
         buffer.delete(
             buffer.get_start_iter(),
             buffer.get_end_iter())
-        buffer2.delete(
-            buffer2.get_start_iter(),
-            buffer2.get_end_iter())
-    """
+
 main = Main()
 Gtk.main()

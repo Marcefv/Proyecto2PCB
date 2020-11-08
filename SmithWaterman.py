@@ -51,21 +51,22 @@ class SmithWaterman:
         return T, S
 
     # encontar la casilla con el score mayor para iniciar el alineamiento local
-    def encontrar_max_score(self, matriz, seq1, seq2):
+    def encontrar_max_score(self, matriz, filas, columnas):
         mayor = -1
         listaMayores = list()
-        for i in range(2, len(seq2) + 2):
+        for i in range(2, filas+1):
             isla = list()
-            for j in range(2, len(seq1) + 2):
-                if matriz[i][j] >= mayor and matriz[i][j] != 0:
-                    mayor = matriz[i][j]
-                    fila = i
-                    columna = j
-                    isla.append(fila)
-                    isla.append(columna)
-                    isla.append(mayor)
-                    listaMayores.append(isla.copy())
-                    isla.clear()
+            for j in range(2, columnas+1):
+                if not isinstance(matriz[i][j], str):
+                    if matriz[i][j] >= mayor and matriz[i][j] != 0:
+                        mayor = matriz[i][j]
+                        fila = i
+                        columna = j
+                        isla.append(fila)
+                        isla.append(columna)
+                        isla.append(mayor)
+                        listaMayores.append(isla.copy())
+                        isla.clear()
         return listaMayores
 
         # para resultado final de alineamiento con traceback
@@ -99,25 +100,3 @@ class SmithWaterman:
                 listo = True
         # retorna las secuencias
         return secuencia1[::-1], secuencia2[::-1]  # para darle vuelta porque el alineamiento es al reves
-"""
-    seq2 = "CAGCTAGCG"
-    seq1 = "CCATACGA"
-
-    matrices = smith_waterman(seq1, seq2, gap=-1)
-
-    matrizRuta = matrices[0]
-    matrizScore = matrices[1]
-
-    secuenciaFinal1 = ""
-    secuenciaFinal2 = ""
-
-    alineadas = secuencia_alineada(matrizRuta, matrizScore, "", "", False)
-
-    print("Scoring = " + str(alineadas[2]))  # obtiene scoring de la ultima casilla que se lleno
-    print(matrizScore)
-    print(matrizRuta)
-    secuenciaFinal1 = alineadas[0]
-    secuenciaFinal2 = alineadas[1]
-    print(secuenciaFinal1)
-    print(secuenciaFinal2)
-"""

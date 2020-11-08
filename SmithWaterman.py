@@ -67,6 +67,9 @@ class SmithWaterman:
                         isla.append(mayor)
                         listaMayores.append(isla.copy())
                         isla.clear()
+            for item in listaMayores:
+                if item[2] != mayor:
+                    listaMayores.remove(item)
         return listaMayores
 
         # para resultado final de alineamiento con traceback

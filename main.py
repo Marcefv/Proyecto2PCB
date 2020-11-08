@@ -120,12 +120,15 @@ class Main:
         if self.algoritmoNW:
             self.scoring.set_text(str(matrizScore[len(seq2) + 1][len(seq1) + 1]))
             texto = texto + "Secuencia 1: " + alineadas[0] + "\n Secuencia 2: " + alineadas[1]
-        else:
-            if len(mayor) > 1:
-                number = 1
-                for isla in islas:
-                    texto = texto + "Isla :"+str(number)+" : \n Secuencia 1: " + isla[0] + "\n Secuencia 2: " + isla[1] + "\n\n"
+        elif len(mayor) > 1:
+            number = 1
+            for isla in islas:
+                texto = texto + "Isla :"+str(number)+" : \n Secuencia 1: " + isla[0] + "\n Secuencia 2: " + isla[1] + "\n\n"
+                number += 1
             self.scoring.set_text(str(mayor[0][2]))
+        else:
+            self.scoring.set_text(str(mayor[0][2]))
+            texto = texto + "Secuencia 1: " + alineadas[0] + "\n Secuencia 2: " + alineadas[1]
 
         #muestra secuencias alineadas
         self.llenarTextView(texto)

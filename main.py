@@ -146,6 +146,7 @@ class Main:
 
     # matriz para mostrar en tabla
     def matriz_for_show(self, matrizScore, matrizRuta, seq1, seq2):
+        #crea matriz y coloca fila con secuencias y valores inciales
         fs= np.zeros(((len(seq2) * 2) + 2, (len(seq1)*2) + 2), dtype=object)
         fs[0:,0:] = ""
         # inicializar
@@ -159,6 +160,7 @@ class Main:
         ien2 = 2
         jen2 = 2
 
+        #llena con el resto de valores de las matrices
         for i in range(3, (len(seq2) * 2) + 2):
             if i % 2 != 0:
                 for j in range(3,  (len(seq1) * 2) + 2):
@@ -175,17 +177,25 @@ class Main:
                 jen2 = 2
         return fs
 
+    #para crear la tabla final
     def tablaFinal(self, matrizfs, islas = None):
+
+        # elimina grid si hay una
         while self.scrolled.get_child() is not None:
             self.scrolled.remove(self.scrolled.get_child())
 
         grid = Gtk.Grid()
         self.scrolled.add_with_viewport(grid)
 
+        #establece tamanio del grid
         dim = matrizfs.shape
         filas = dim[0]
         columnas = dim[1]
+
+        #en esta variable van a estar las celdas que se colorean
         colorear = list()
+
+        #determinar las celdas que se colorean
         if self.algoritmoNW:
             colorear = self.colorear_celda(matrizfs, filas-1, columnas-1)
         else:
@@ -193,10 +203,13 @@ class Main:
                 lista = self.colorear_celda(matrizfs, isla[0], isla[1])
                 colorear.extend(lista.copy())
 
+
         celdasTabla = {}
         rgba = RGBA()
         rgba.parse("#7f7f7f")
         rgba.to_string()
+
+        #llenar celdas
         for i in range(filas):
             for j in range(columnas):
                 if isinstance(matrizfs[i][j], str):
@@ -213,7 +226,7 @@ class Main:
                 grid.attach(celdasTabla["c{0}{1}".format(i, j)], j, i, 1, 1)
         grid.show_all()
 
-
+    #determinar las celdas que se colorean
     def colorear_celda(self, matriz, fila, columna):
         colorear = list()
 
@@ -261,11 +274,13 @@ class Main:
                         columna = columna - 1
             return colorear
 
+    #llenar el textview con las secuencias alineadas
     def llenarTextView(self, texto):
         self.borrar_text_view()
         buffer = self.text_view.get_buffer()
         self.text_view.get_buffer().insert(buffer.get_start_iter(), texto)
 
+    #borrar informacion del text view
     def borrar_text_view(self):
         buffer = self.text_view.get_buffer()
         buffer.delete(

@@ -72,8 +72,8 @@ class SmithWaterman:
                     listaMayores.remove(item)
         return listaMayores
 
-        # para resultado final de alineamiento con traceback
 
+        # para resultado final de alineamiento con traceback
     def secuencia_alineada(self, matrizRuta, fila, columna, seq1, seq2, listo):
         secuencia1 = ""
         secuencia2 = ""

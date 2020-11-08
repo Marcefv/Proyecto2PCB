@@ -77,26 +77,5 @@ class NeedlemanWunsch:
                 listo = True
         # retorna las secuencias
         return secuencia1[::-1], secuencia2[::-1]  # para darle vuelta porque el alineamiento es al reves
-"""
-    seq1 = "ATGTTAT"
-    seq2 = "ATGCTAGT"
-
-    matrices = needlman_wunsch(seq1, seq2)
-
-    matrizRuta = matrices[0]
-    matrizScore = matrices[1]
-
-    print("Scoring = " + str(
-        matrizScore[len(seq2) + 1][len(seq1) + 1]))  # obtiene scoring de la ultima casilla que se lleno
-
-    secuenciaFinal1 = ""
-    secuenciaFinal2 = ""
-    alineadas = secuencia_alineada(matrizRuta, len(seq2) + 1, len(seq1) + 1, "", "", False)
-
-    secuenciaFinal1 = alineadas[0]
-    secuenciaFinal2 = alineadas[1]
-    print(secuenciaFinal1)
-    print(secuenciaFinal2)
-"""
 
 

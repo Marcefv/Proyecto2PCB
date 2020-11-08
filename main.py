@@ -102,7 +102,10 @@ class Main:
                                                    mismatch=self.mismatchValue.get_value_as_int(),
                                                    gap=self.gapValue.get_value_as_int())
                 mayor = smi.encontrar_max_score(matrices[1], seq1, seq2)
-                alineadas = smi.secuencia_alineada(matrices[0], mayor[0], mayor[1], seq1, seq2, False)
+                if len(mayor) > 1:
+
+                else:
+                    alineadas = smi.secuencia_alineada(matrices[0], mayor[0][0], mayor[0][1], seq1, seq2, False)
         except:
             self.error("Hubo un error con las secuencias, no se puede procesar")
             return
@@ -111,19 +114,22 @@ class Main:
         matrizRuta = matrices[0]
         print(matrizScore)
         print(matrizRuta)
+
         # muestra scoring optimo en interfaz
         if self.algoritmoNW:
             self.scoring.set_text(str(matrizScore[len(seq2) + 1][len(seq1) + 1]))
         else:
-            self.scoring.set_text(str(mayor[2]))
+            self.scoring.set_text(str(mayor[0][2]))
 
        # muestra secuencias alineadas
-        self.alineada1.set_text(alineadas[0])
-        self.alineada2.set_text(alineadas[1])
+       # self.alineada1.set_text(alineadas[0])
+        #self.alineada2.set_text(alineadas[1])
 
-        m = self.matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
+        #crea matriz para mostrar en tabla
+        #m = self.matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
 
-        self.tablaFinal(m)
+        #crea tabla en la que se muestra la matriz
+        #self.tablaFinal(m)
 
 
     # matriz para mostrar en tabla
@@ -179,40 +185,60 @@ class Main:
         for i in range(filas):
             for j in range(columnas):
                 if isinstance(matrizfs[i][j], str):
-                    celdasTabla["c{0}{0}".format(i, j)] = Gtk.Label()
-                    celdasTabla["c{0}{0}".format(i, j)].set_text(matrizfs[i][j])
-                    if "c{0}{0}".format(i, j) in colorear:
-                        celdasTabla["c{0}{0}".format(i, j)].modify_fg(Gtk.StateFlags.NORMAL,  Color(50000, 0,0))
+                    celdasTabla["c{0}{1}".format(i, j)] = Gtk.Label()
+                    celdasTabla["c{0}{1}".format(i, j)].set_text(matrizfs[i][j])
+                    #if "c{0}{1}".format(i, j) in colorear:
+                        #celdasTabla["c{0}{1}".format(i, j)].modify_fg(Gtk.StateFlags.NORMAL,  Color(50000, 0,0))
                 else:
-                    celdasTabla["c{0}{0}".format(i, j)] = Gtk.Entry()
-                    celdasTabla["c{0}{0}".format(i, j)].set_property("editable", False)
-                    celdasTabla["c{0}{0}".format(i, j)].set_text(str(matrizfs[i][j]))
-                    if "c{0}{0}".format(i, j) in colorear:
-                        celdasTabla["c{0}{0}".format(i, j)].override_background_color(Gtk.StateFlags.NORMAL, rgba)
-                grid.attach(celdasTabla["c{0}{0}".format(i, j)], j, i, 1, 1)
+                    celdasTabla["c{0}{1}".format(i, j)] = Gtk.Entry()
+                    celdasTabla["c{0}{1}".format(i, j)].set_property("editable", False)
+                    celdasTabla["c{0}{1}".format(i, j)].set_text(str(matrizfs[i][j]))
+                    #if "c{0}{1}".format(i, j) in colorear:
+                        #celdasTabla["c{0}{1}".format(i, j)].override_background_color(Gtk.StateFlags.NORMAL, rgba)
+                grid.attach(celdasTabla["c{0}{1}".format(i, j)], j, i, 1, 1)
         grid.show_all()
 
 
     def colorear_celda(self, matriz, fila, columna):
         colorear = list()
-        colorear.append("c{0}{0}".format(fila, columna))
-
-        while matriz[fila][columna] != 0:
-            if fila % 2 != 0:
-                if matriz[fila-1][columna-1] != "":
-                    colorear.append("c{0}{0}".format(fila-1, columna-1))
+        colorear.append("c{0}{1}".format(1, 1))
+        while (fila != 1) or (columna != 1):
+            if not isinstance(matriz[fila][columna], str):
+                colorear.append("c{0}{1}".format(fila, columna))
+                if matriz[fila-1][columna-1] != "" and fila-1 != 0 and columna - 1 != 0:
                     fila = fila - 1
                     columna = columna - 1
-                elif matriz[fila-1][columna] != "":
-                    colorear.append("c{0}{0}".format(fila - 1, columna))
+                elif matriz[fila-1][columna] != "" and fila-1 != 0:
                     fila = fila - 1
-                elif matriz[fila][columna-1] != "":
-                    colorear.append("c{0}{0}".format(fila, columna-1))
+                elif matriz[fila][columna-1] != "" and columna - 1 != 0:
                     columna = columna - 1
-
+            else:
+                colorear.append("c{0}{1}".format(fila, columna))
+                if matriz[fila][columna] == "↖":
+                    fila = fila - 1
+                    columna = columna - 1
+                if matriz[fila][columna] == "↑":
+                    fila = fila - 1
+                if matriz[fila][columna] == "←":
+                    columna = columna - 1
         return colorear
+    """
+    def on_btn_porcentajes_clicked(self, widget):
+        self.borrar_text_view()
+        buffer = self.text_view1.get_buffer()
+        buffer2 = self.text_view2.get_buffer()
+        self.text_view1.get_buffer().insert(buffer.get_start_iter(), self.porcentajes_genotipos)
+        self.text_view2.get_buffer().insert(buffer2.get_start_iter(), self.porcentaje_fenotipos)
 
-
-
+    def borrar_text_view(self):
+        buffer = self.text_view1.get_buffer()
+        buffer2 = self.text_view2.get_buffer()
+        buffer.delete(
+            buffer.get_start_iter(),
+            buffer.get_end_iter())
+        buffer2.delete(
+            buffer2.get_start_iter(),
+            buffer2.get_end_iter())
+    """
 main = Main()
 Gtk.main()

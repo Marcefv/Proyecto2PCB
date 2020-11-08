@@ -52,14 +52,21 @@ class SmithWaterman:
 
     # encontar la casilla con el score mayor para iniciar el alineamiento local
     def encontrar_max_score(self, matriz, seq1, seq2):
-        mayor = 0
+        mayor = -1
+        listaMayores = list()
         for i in range(2, len(seq2) + 2):
+            isla = list()
             for j in range(2, len(seq1) + 2):
-                if matriz[i][j] > mayor:
+                if matriz[i][j] >= mayor and matriz[i][j] != 0:
                     mayor = matriz[i][j]
                     fila = i
                     columna = j
-        return fila, columna, mayor
+                    isla.append(fila)
+                    isla.append(columna)
+                    isla.append(mayor)
+                    listaMayores.append(isla.copy())
+                    isla.clear()
+        return listaMayores
 
         # para resultado final de alineamiento con traceback
 

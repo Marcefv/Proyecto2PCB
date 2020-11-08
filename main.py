@@ -4,7 +4,8 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from SmithWaterman import SmithWaterman as sw
 from NeedlemanWunsch import NeedlemanWunsch as nw
-
+from gi.repository.Gdk import RGBA
+from gi.repository.Gdk import Color
 
 class Main:
     def __init__(self):
@@ -121,7 +122,8 @@ class Main:
         self.alineada2.set_text(alineadas[1])
 
         m = self.matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
-        print(m)
+
+        self.tablaFinal(m)
 
 
     # matriz para mostrar en tabla
@@ -156,26 +158,59 @@ class Main:
         return fs
 
     def tablaFinal(self, matrizfs):
+        while self.scrolled.get_child() is not None:
+            self.scrolled.remove(self.scrolled.get_child())
+
         grid = Gtk.Grid()
         self.scrolled.add_with_viewport(grid)
 
-        filas = matrizfs.shape()[0]
-        columnas = matrizfs.shape()[1]
-        celdasTabla = {}
+        dim = matrizfs.shape
+        filas = dim[0]
+        columnas = dim[1]
 
+        if self.algoritmoNW:
+            colorear = self.colorear_celda(matrizfs, filas-1, columnas-1)
+
+
+        celdasTabla = {}
+        rgba = RGBA()
+        rgba.parse("#7f7f7f")
+        rgba.to_string()
         for i in range(filas):
             for j in range(columnas):
                 if isinstance(matrizfs[i][j], str):
                     celdasTabla["c{0}{0}".format(i, j)] = Gtk.Label()
                     celdasTabla["c{0}{0}".format(i, j)].set_text(matrizfs[i][j])
+                    if "c{0}{0}".format(i, j) in colorear:
+                        celdasTabla["c{0}{0}".format(i, j)].modify_fg(Gtk.StateFlags.NORMAL,  Color(50000, 0,0))
                 else:
                     celdasTabla["c{0}{0}".format(i, j)] = Gtk.Entry()
                     celdasTabla["c{0}{0}".format(i, j)].set_property("editable", False)
                     celdasTabla["c{0}{0}".format(i, j)].set_text(str(matrizfs[i][j]))
+                    if "c{0}{0}".format(i, j) in colorear:
+                        celdasTabla["c{0}{0}".format(i, j)].override_background_color(Gtk.StateFlags.NORMAL, rgba)
                 grid.attach(celdasTabla["c{0}{0}".format(i, j)], j, i, 1, 1)
         grid.show_all()
 
 
+    def colorear_celda(self, matriz, fila, columna):
+        colorear = list()
+        colorear.append("c{0}{0}".format(fila, columna))
+
+        while matriz[fila][columna] != 0:
+            if fila % 2 != 0:
+                if matriz[fila-1][columna-1] != "":
+                    colorear.append("c{0}{0}".format(fila-1, columna-1))
+                    fila = fila - 1
+                    columna = columna - 1
+                elif matriz[fila-1][columna] != "":
+                    colorear.append("c{0}{0}".format(fila - 1, columna))
+                    fila = fila - 1
+                elif matriz[fila][columna-1] != "":
+                    colorear.append("c{0}{0}".format(fila, columna-1))
+                    columna = columna - 1
+
+        return colorear
 
 
 

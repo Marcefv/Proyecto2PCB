@@ -113,8 +113,7 @@ class Main:
 
         matrizScore = matrices[1]
         matrizRuta = matrices[0]
-        print(matrizScore)
-        print(matrizRuta)
+
         texto = ""
         # muestra scoring optimo en interfaz
         if self.algoritmoNW:
@@ -135,7 +134,7 @@ class Main:
 
         #crea matriz para mostrar en tabla
         m = self.matriz_for_show(matrizScore, matrizRuta, seq1, seq2)
-
+        print(m)
         #crea tabla en la que se muestra la matriz
         if self.algoritmoNW:
             self.tablaFinal(m)
@@ -213,17 +212,17 @@ class Main:
         for i in range(filas):
             for j in range(columnas):
                 if isinstance(matrizfs[i][j], str):
-                    celdasTabla["c{0}{1}".format(i, j)] = Gtk.Label()
-                    celdasTabla["c{0}{1}".format(i, j)].set_text(matrizfs[i][j])
-                    if "c{0}{1}".format(i, j) in colorear:
-                        celdasTabla["c{0}{1}".format(i, j)].modify_fg(Gtk.StateFlags.NORMAL,  Color(50000, 0,0))
+                    celdasTabla["c9999{0},{1}".format(i, j)] = Gtk.Label()
+                    celdasTabla["c9999{0},{1}".format(i, j)].set_text(matrizfs[i][j])
+                    if "c9999{0},{1}".format(i, j) in colorear:
+                        celdasTabla["c9999{0},{1}".format(i, j)].modify_fg(Gtk.StateFlags.NORMAL,  Color(50000, 0,0))
                 else:
-                    celdasTabla["c{0}{1}".format(i, j)] = Gtk.Entry()
-                    celdasTabla["c{0}{1}".format(i, j)].set_property("editable", False)
-                    celdasTabla["c{0}{1}".format(i, j)].set_text(str(matrizfs[i][j]))
-                    if "c{0}{1}".format(i, j) in colorear:
-                        celdasTabla["c{0}{1}".format(i, j)].override_background_color(Gtk.StateFlags.NORMAL, rgba)
-                grid.attach(celdasTabla["c{0}{1}".format(i, j)], j, i, 1, 1)
+                    celdasTabla["c9999{0},{1}".format(i, j)] = Gtk.Entry()
+                    celdasTabla["c9999{0},{1}".format(i, j)].set_property("editable", False)
+                    celdasTabla["c9999{0},{1}".format(i, j)].set_text(str(matrizfs[i][j]))
+                    if "c9999{0},{1}".format(i, j) in colorear:
+                        celdasTabla["c9999{0},{1}".format(i, j)].override_background_color(Gtk.StateFlags.NORMAL, rgba)
+                grid.attach(celdasTabla["c9999{0},{1}".format(i, j)], j, i, 1, 1)
         grid.show_all()
 
     #determinar las celdas que se colorean
@@ -231,10 +230,10 @@ class Main:
         colorear = list()
 
         if self.algoritmoNW:
-            colorear.append("c{0}{1}".format(1, 1))
+            colorear.append("c9999{0},{1}".format(1, 1))
             while (fila != 1) or (columna != 1):
                 if not isinstance(matriz[fila][columna], str):
-                    colorear.append("c{0}{1}".format(fila, columna))
+                    colorear.append("c9999{0},{1}".format(fila, columna))
                     if matriz[fila-1][columna-1] != "" and fila-1 != 0 and columna - 1 != 0:
                         fila = fila - 1
                         columna = columna - 1
@@ -243,7 +242,7 @@ class Main:
                     elif matriz[fila][columna-1] != "" and columna - 1 != 0:
                         columna = columna - 1
                 else:
-                    colorear.append("c{0}{1}".format(fila, columna))
+                    colorear.append("c9999{0},{1}".format(fila, columna))
                     if matriz[fila][columna] == "↖":
                         fila = fila - 1
                         columna = columna - 1
@@ -255,7 +254,7 @@ class Main:
         else:
             while matriz[fila][columna] != 0:
                 if not isinstance(matriz[fila][columna], str):
-                    colorear.append("c{0}{1}".format(fila, columna))
+                    colorear.append("c9999{0},{1}".format(fila, columna))
                     if matriz[fila-1][columna-1] != "" and fila-1 != 0 and columna - 1 != 0:
                         fila = fila - 1
                         columna = columna - 1
@@ -264,7 +263,7 @@ class Main:
                     elif matriz[fila][columna-1] != "" and columna - 1 != 0:
                         columna = columna - 1
                 else:
-                    colorear.append("c{0}{1}".format(fila, columna))
+                    colorear.append("c9999{0},{1}".format(fila, columna))
                     if matriz[fila][columna] == "↖":
                         fila = fila - 1
                         columna = columna - 1

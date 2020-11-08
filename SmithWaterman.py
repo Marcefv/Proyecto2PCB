@@ -55,11 +55,16 @@ class SmithWaterman:
         mayor = -1
         listaMayores = list()
         for i in range(2, filas+1):
-            isla = list()
             for j in range(2, columnas+1):
                 if not isinstance(matriz[i][j], str):
                     if matriz[i][j] >= mayor and matriz[i][j] != 0:
                         mayor = matriz[i][j]
+
+        isla = list()
+        for i in range(2, filas + 1):
+            for j in range(2, columnas+1):
+                if not isinstance(matriz[i][j], str):
+                    if matriz[i][j] == mayor:
                         fila = i
                         columna = j
                         isla.append(fila)
@@ -67,9 +72,6 @@ class SmithWaterman:
                         isla.append(mayor)
                         listaMayores.append(isla.copy())
                         isla.clear()
-            for item in listaMayores:
-                if item[2] != mayor:
-                    listaMayores.remove(item)
         return listaMayores
 
 
